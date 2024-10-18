@@ -18,6 +18,7 @@ pub fn build(b: *std.Build) void {
 		lib.linkSystemLibrary("gtk+-3.0");
 		lib.addCSourceFile(.{ .file = osdialog_dep.path("osdialog_gtk3.c") });
 	} else if (builtin.os.tag == .windows) {
+		lib.linkSystemLibrary("comdlg32");
 		lib.addCSourceFile(.{ .file = osdialog_dep.path("osdialog_win.c") });
 	} else if (builtin.os.tag.isDarwin()) {
 		lib.linkFramework("AppKit");
