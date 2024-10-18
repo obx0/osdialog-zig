@@ -1,5 +1,5 @@
 .{
-	.name = "os_open",
+	.name = "osdialog",
 	.version = "0.0.1",
 	.dependencies = .{
 		.osdialog = .{
