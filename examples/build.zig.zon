@@ -1,0 +1,12 @@
+.{
+	.name = "os_open-examples",
+	.version = "0.0.0",
+	.dependencies = .{
+		.os_open = .{ .path = "../" },
+	},
+	.paths = .{
+		"build.zig",
+		"build.zig.zon",
+		"src",
+	},
+}
