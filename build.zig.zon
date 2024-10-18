@@ -1,6 +1,6 @@
 .{
 	.name = "osdialog",
-	.version = "0.0.1",
+	.version = "0.1.0",
 	.dependencies = .{
 		.osdialog = .{
 			.url = "https://github.com/ttytm/osdialog/archive/989a270.tar.gz",
