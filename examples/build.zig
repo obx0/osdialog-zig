@@ -4,18 +4,18 @@ pub fn build(b: *std.Build) void {
 	const target = b.standardTargetOptions(.{});
 	const optimize = b.standardOptimizeOption(.{});
 
-	const dep = b.dependency("os_open", .{
+	const dep = b.dependency("osdialog", .{
 		.target = target,
 		.optimize = optimize,
 	});
 
 	const exe = b.addExecutable(.{
-		.name = "os_open-examples",
+		.name = "osdialog-examples",
 		.root_source_file = b.path("src/main.zig"),
 		.target = target,
 		.optimize = optimize,
 	});
-	exe.root_module.addImport("os_open", dep.module("os_open"));
+	exe.root_module.addImport("osdialog", dep.module("osdialog"));
 	b.installArtifact(exe);
 
 	const run_cmd = b.addRunArtifact(exe);

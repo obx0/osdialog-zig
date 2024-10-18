@@ -4,9 +4,16 @@ const osdialog_color = extern struct { r: u8, g: u8, b: u8, a: u8 };
 const osdialog_filters = extern struct {};
 
 extern fn osdialog_message(level: c_int, buttons: c_int, message: [*c]const u8) c_int;
-extern fn osdialog_prompt(level: c_int, message: [*c]const u8, text: [*c]const u8) [*c]const u8;
+extern fn osdialog_prompt(level: c_int, message: [*c]const u8, text: [*c]const u8) [*c]u8;
 extern fn osdialog_color_picker(color: *osdialog_color, opacity: c_int) c_int;
-extern fn osdialog_file(action: c_int, path: [*c]const u8, filename: [*c]const u8, filters: ?*osdialog_filters) [*c]const u8;
+extern fn osdialog_file(action: c_int, path: [*c]const u8, filename: [*c]const u8, filters: ?*osdialog_filters) [*c]u8;
+
+fn toZString(allocator: std.mem.Allocator, c_str_opt: ?[*c]u8) ?[:0]u8 {
+	const c_string = c_str_opt orelse return null;
+	defer std.c.free(c_string);
+	const z_string: [:0]u8 = std.mem.span(c_string);
+	return allocator.dupeZ(u8, z_string) catch return null;
+}
 
 pub const Buttons = enum {
 	ok,
@@ -41,17 +48,10 @@ pub const ColorPickerOptions = struct {
 	opacity: bool = true,
 };
 
-pub const OpenPathOptions = struct {
+pub const PathOptions = struct {
 	/// The initial path the dialog will attempt to open in.
 	path: [*:0]const u8 = "",
-	// TODO:
-	filters: ?*osdialog_filters = null,
-};
-
-pub const SavePathOptions = struct {
-	/// The initial path the dialog will attempt to open in.
-	path: [*:0]const u8 = "",
-	/// The initial path the dialog will attempt to open in.
+	/// The initial filename in the input field.
 	filename: [*:0]const u8 = "",
 	// TODO:
 	filters: ?*osdialog_filters = null,
@@ -63,33 +63,19 @@ pub fn message(text: [*:0]const u8, opts: MessageOptions) bool {
 }
 
 /// Opens an input prompt with an "OK" and "Cancel" button.
-pub fn prompt(text: [*:0]const u8, opts: PromptOptions) ?[*:0]const u8 {
-	return osdialog_prompt(@intFromEnum(opts.level), text, opts.text);
+pub fn prompt(allocator: std.mem.Allocator, text: [*:0]const u8, opts: PromptOptions) ?[:0]u8 {
+	return toZString(allocator, osdialog_prompt(@intFromEnum(opts.level), text, opts.text));
 }
 
 /// Opens an RGBA color picker dialog and returns the selected `Color` or `null`
 /// if the selection was canceled. The argument takes optional fields that allow
 /// to set the inital `color` and to disable the `opacity` on unix-like systems.
-pub fn colorPicker(options: ColorPickerOptions) ?Color {
+pub fn color(options: ColorPickerOptions) ?Color {
 	var col = options.color;
 	return if (osdialog_color_picker(&col, @intFromBool(options.opacity)) == 1) col else null;
 }
 
-fn fileDialog(action: enum { open, open_dir, save }, path: [*:0]const u8, filename: [*:0]const u8) ?[*:0]const u8 {
-	return osdialog_file(@intFromEnum(action), path, filename, null);
-}
-
 /// Opens a file dialog and returns the selected path or `null` if the selection was canceled.
-pub fn filePath(options: OpenPathOptions) ?[*:0]const u8 {
-	return fileDialog(.open, options.path, "");
-}
-
-/// Opens a file dialog and returns the selected path or `null` if the selection was canceled.
-pub fn dirPath(options: OpenPathOptions) ?[*:0]const u8 {
-	return fileDialog(.open_dir, options.path, "");
-}
-
-/// Opens a file dialog and returns the selected path or `null` if the selection was canceled.
-pub fn savePath(options: SavePathOptions) ?[*:0]const u8 {
-	return fileDialog(.save, options.path, options.filename);
+pub fn path(allocator: std.mem.Allocator, action: enum { open, open_dir, save }, options: PathOptions) ?[:0]u8 {
+	return toZString(allocator, osdialog_file(@intFromEnum(action), options.path, options.filename, null));
 }

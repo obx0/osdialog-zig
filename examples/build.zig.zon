@@ -1,8 +1,8 @@
 .{
-	.name = "os_open-examples",
+	.name = "osdialog-examples",
 	.version = "0.0.0",
 	.dependencies = .{
-		.os_open = .{ .path = "../" },
+		.osdialog = .{ .path = "../" },
 	},
 	.paths = .{
 		"build.zig",
