@@ -85,10 +85,7 @@ const std = @import("std");
 
 pub fn build(b: *std.Build) void {
 	// ..
-	const osdialog_dep = b.dependency("osdialog", .{
-		.target = target,
-		.optimize = optimize,
-	});
+	const osdialog_dep = b.dependency("osdialog", .{});
 	const exe = b.addExecutable(.{
 		.name = "your-awesome-projct",
 		// ..
@@ -100,6 +97,7 @@ pub fn build(b: *std.Build) void {
 
 ## Usage
 
+Ref.: [`osdialog-zig/src/lib.zig`](https://github.com/ttytm/osdialog-zig/blob/main/src/lib.zig)
 ```zig
 /// Opens a message box and returns `true` if `OK` or `Yes` was pressed.
 pub fn message(text: [*:0]const u8, opts: MessageOptions) bool
@@ -107,13 +105,11 @@ pub fn message(text: [*:0]const u8, opts: MessageOptions) bool
 /// Opens an input prompt with an "OK" and "Cancel" button.
 pub fn prompt(allocator: std.mem.Allocator, text: [*:0]const u8, opts: PromptOptions) ?[:0]u8
 
-/// Opens an RGBA color picker dialog and returns the selected `Color` or `null`
-/// if the selection was canceled. The argument takes optional fields that allow
-/// to set the inital `color` and to disable the `opacity` on unix-like systems.
+/// Opens an RGBA color picker and returns the selected `Color` or `null` if the selection was canceled.
 pub fn color(options: ColorPickerOptions) ?Color
 
 /// Opens a file dialog and returns the selected path or `null` if the selection was canceled.
-pub fn path(allocator: std.mem.Allocator, action: enum { open, open_dir, save }, options: PathOptions) ?[:0]u8
+pub fn path(allocator: std.mem.Allocator, action: PathAction, options: PathOptions) ?[:0]u8
 ```
 
 ### Example
